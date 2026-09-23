@@ -761,6 +761,8 @@
     if (dom.geminiKeyInput) dom.geminiKeyInput.value = state.geminiApiKey;
     if (dom.displayNameInput) dom.displayNameInput.value = state.profile.name;
     if (dom.avatarSelect) dom.avatarSelect.value = state.profile.avatar || '🌙';
+    const originEl = document.getElementById('originDisplay');
+    if (originEl) originEl.textContent = window.location.origin;
   }
 
   function updateSyncBadge(status, detail) {
