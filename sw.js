@@ -4,7 +4,7 @@
  * and seamless background synchronization.
  */
 
-const CACHE_NAME = 'alcove-pwa-v2';
+const CACHE_NAME = 'alcove-pwa-v3';
 
 const PRECACHE_ASSETS = [
   './',

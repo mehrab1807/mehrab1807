@@ -1,6 +1,6 @@
-# Alcove: Private Journal, Tasks, Notes and Naseeha Counsel
+# Alcove: Private Journal, Tasks, Notes and Companion
 
-A zero-installation, portable personal journal application built with a transparent frosted glass aesthetic, featuring an integrated task reminder manager, scratchpad notes, global full-text search across posts and files, and an empathetic, non-coercive Islamic ethical counsel companion named Naseeha.
+A zero-installation, portable personal journal application built with a transparent frosted glass aesthetic, featuring an integrated task reminder manager, scratchpad notes, global full-text search across posts and files, and an empathetic, thoughtful personal companion named Sage.
 
 All journal entries, tasks, notes, vault files, and conversation histories are stored entirely client-side within browser IndexedDB and synchronised directly with the user's personal Google Drive account. No external database, Node.js server, or cloud backend is used.
 
@@ -25,9 +25,9 @@ Open `http://localhost:8000` in any modern web browser.
 
 ## Configuration Guide
 
-The application operates fully offline using IndexedDB. To enable cloud backup to Google Drive and activate the Naseeha Islamic counsel companion, enter your credentials in the application Settings modal.
+The application operates fully offline using IndexedDB. To enable cloud backup to Google Drive and activate the Sage companion, enter your credentials in the application Settings modal.
 
-### 1. Google OAuth 2.0 Client ID for Drive Backup
+### 1. Google Account & Drive Backup
 Google Drive synchronisation uses the official Google Identity Services library with the restricted scope `https://www.googleapis.com/auth/drive.file`, allowing the application access only to files it creates itself.
 
 1. Navigate to the Google Cloud Console at `https://console.cloud.google.com/`.
@@ -40,13 +40,13 @@ Google Drive synchronisation uses the official Google Identity Services library 
 5. Open **APIs & Services** > **Credentials**:
    - Click **Create Credentials** > **OAuth client ID**.
    - Select **Web application** under Application type.
-   - Under **Authorised JavaScript origins**, click **Add URI** and enter `http://localhost:8000`.
+   - Under **Authorised JavaScript origins**, click **Add URI** and enter `http://localhost:8000` (and `https://mehrab1807.github.io`).
    - Click **Create**.
 6. Copy the generated **Client ID**.
-7. In Alcove, click the **Settings** gear icon in the top right, paste your Client ID, click **Save Settings**, and click **Connect Google Drive**.
+7. In Alcove, click **Sign in with Google** or the **Settings** gear icon in the top right, enter your Client ID once, and sign in.
 
-### 2. Gemini API Key for Naseeha Counsel
-The Naseeha spiritual counsel assistant connects directly from the browser to Google's `gemini-2.5-flash` model.
+### 2. Gemini API Key for Sage Companion
+The Sage mindful companion connects directly from the browser to Google's `gemini-2.5-flash` model.
 
 1. Visit Google AI Studio at `https://aistudio.google.com/app/apikey`.
 2. Sign in with your Google account and click **Create API Key**.
@@ -66,7 +66,7 @@ All data backed up to Google Drive is stored in an isolated root folder within y
   - `notes.json`: Scratchpad notes and pinned memos.
   - `/media/`: Uploaded photos, audio files, and video clips.
   - `/vault/`: Confidential documents stashed via the Private Vault tab.
-  - `chat_history.json`: Serialised chat transcripts between the user and Naseeha.
+  - `chat_history.json`: Serialised chat transcripts between the user and Sage.
 
 ---
 
@@ -76,11 +76,11 @@ All data backed up to Google Drive is stored in an isolated root folder within y
 - **Task Reminders & Checklist:** Schedule tasks with specific due dates, priority tiers (Normal, High, Urgent), active overdue notification badges, and single-click completion.
 - **Private Notes & Scratchpad:** Capture quick ideas, drafts, and reflections with colour tagging (Mocha, Amber, Sage, Indigo), pin-to-top controls, and clipboard copy.
 - **Multi-Photo and Multi-Video Publishing:** Select or drop multiple pictures and multiple video clips into entries simultaneously, with dynamic photo collages and responsive video grids.
-- **Profile Picture Personalisation:** Custom square photo upload with browser canvas downsampling, six curated artwork presets, and emoji symbol fallbacks.
+- **Profile Picture Personalisation:** Custom square photo upload with browser canvas downsampling, curated artwork presets, and automatic Google profile avatar population.
 - **Transparent Frosted Glass Design:** See-through frosted acrylic surfaces, subtle background wood panelling diffusion, and ambient atmospheric lighting.
 - **Inline Thread Composer:** Embedded directly at the top of the feed with attachment tags and backdating controls.
-- **Connected Timeline Stream:** Posts linked by vertical thread lines with like counters, quick Naseeha reflection triggers, and sync badges.
+- **Connected Timeline Stream:** Posts linked by vertical thread lines with like counters, quick Sage reflection triggers, and sync badges.
 - **Integrated Plyr Audio and Video:** Built-in responsive media player supporting audio tracks, video clips, and external streaming links with mutual playback pausing.
 - **Memories ("On This Day"):** Automatically highlights journal entries written on the current day in earlier years.
 - **Private Vault:** A local and cloud file locker for documents, PDFs, voice memos, and archives.
-- **Naseeha Counsel:** An empathetic Islamic ethical assistant initialized with non-coercive guidelines that guide rather than command, featuring quick prompt chips and automatic journal reflection.
+- **Sage Companion:** An empathetic, grounded personal friend and guide offering thoughtful validation, mindful reflection, and gentle perspective for journal entries.

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Alcove - Private Journal, Tasks, Notes & Naseeha Counsel</title>
+  <title>Alcove - Private Journal, Tasks, Notes & Companion</title>
 
   <!-- CDN Dependencies -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -104,7 +104,7 @@
         </div>
 
         <!-- 1-on-1 Messenger Trigger -->
-        <button id="toggleChatBtn" type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs sm:text-sm font-medium shadow-md transition" title="Open 1-on-1 Messenger with Naseeha">
+        <button id="toggleChatBtn" type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs sm:text-sm font-medium shadow-md transition" title="Open 1-on-1 Messenger with Sage">
           <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
           <span>Messenger</span>
         </button>
@@ -587,27 +587,27 @@
 
           <hr class="border-white/[0.08]">
 
-          <!-- Section 4: Naseeha Counsel -->
+          <!-- Section 4: Sage Companion -->
           <div class="space-y-3">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
                 <i data-lucide="sparkles" class="w-4 h-4 text-emerald-400"></i>
-                <h3 class="font-semibold text-sm text-stone-200">Naseeha Companion</h3>
+                <h3 class="font-semibold text-sm text-stone-200">Sage Companion</h3>
               </div>
               <button type="button" onclick="document.getElementById('toggleChatBtn').click()" class="btn-pill text-xs py-0.5 px-2.5 text-stone-300">
                 Open Chat
               </button>
             </div>
 
-            <!-- Featured Islamic Wisdom Card -->
+            <!-- Featured Mindful Reflection Card -->
             <div class="glass-inset overflow-hidden border-white/[0.08] group cursor-pointer" onclick="document.getElementById('toggleChatBtn').click()">
               <div class="p-4 space-y-2">
-                <span class="badge-amber">Spiritual Counsel</span>
+                <span class="badge-amber">Mindful Companion</span>
                 <h4 class="font-bold text-stone-100 text-base leading-snug group-hover:text-amber-400 transition">
-                  Grounded Wisdom & Gentle Perspective
+                  Grounded Reflection & Gentle Perspective
                 </h4>
                 <p class="text-xs text-stone-400 leading-relaxed">
-                  "And remind, for indeed, the reminder benefits the believers." Non-coercive counsel for emotional balance and purpose.
+                  A compassionate companion offering thoughtful perspective, active listening, and calm guidance for life's moments.
                 </p>
               </div>
               <div class="h-24 bg-gradient-to-tr from-stone-900 via-emerald-950/40 to-amber-950/30 flex items-center justify-center p-3 text-center border-t border-white/[0.06]">
@@ -700,7 +700,7 @@
     </div>
   </div>
 
-  <!-- FLOATING DRAWER: Naseeha Messenger (1-on-1 Personal Chat) -->
+  <!-- FLOATING DRAWER: Sage Messenger (1-on-1 Personal Chat) -->
   <aside id="chatDrawer" class="chatDrawer chat-drawer flex flex-col">
     <div class="p-4 border-b border-white/[0.08] flex items-center justify-between glass-header">
       <div class="flex items-center gap-3">
@@ -712,7 +712,7 @@
         </div>
         <div>
           <h3 class="font-bold text-sm text-stone-100 flex items-center gap-1.5">
-            <span>Naseeha Messenger</span>
+            <span>Sage Messenger</span>
           </h3>
           <p class="text-[11px] text-emerald-400/90 font-medium">1-on-1 Personal Chat &bull; Friend & Guide</p>
         </div>
@@ -730,25 +730,25 @@
     <!-- 1-on-1 Messenger Explanatory Notice -->
     <div class="px-4 py-2.5 bg-emerald-950/20 border-b border-emerald-500/15 text-[11px] text-stone-300 flex items-start gap-2">
       <i data-lucide="message-circle" class="w-3.5 h-3.5 text-emerald-400 flex-shrink-0 mt-0.5"></i>
-      <span>Chat personally with Naseeha at any time. Type any question, share personal thoughts, or seek solace. This conversation is private and independent of your wall posts.</span>
+      <span>Chat personally with Sage at any time. Type any question, share personal thoughts, or seek clarity. This conversation is private and independent of your wall posts.</span>
     </div>
 
     <!-- Quick Action Chips Bar -->
     <div class="p-2.5 bg-black/15 border-b border-white/[0.06] overflow-x-auto flex gap-2 text-xs no-scrollbar">
-      <button type="button" class="quick-chip flex-shrink-0 btn-pill text-xs py-1 px-2.5" data-prompt="Assalamu alaykum Naseeha, I would like to chat about finding inner calm and focus today.">
-        Inner calm & peace
+      <button type="button" class="quick-chip flex-shrink-0 btn-pill text-xs py-1 px-2.5" data-prompt="Hello Sage, I would like to chat about finding inner calm and focus today.">
+        Inner calm & focus
       </button>
-      <button type="button" class="quick-chip flex-shrink-0 btn-pill text-xs py-1 px-2.5" data-prompt="Please provide gentle Duas and Islamic perspectives for dealing with anxiety, worry, and hardship.">
-        Duas for anxiety & hardship
+      <button type="button" class="quick-chip flex-shrink-0 btn-pill text-xs py-1 px-2.5" data-prompt="I have been feeling stressed and overwhelmed recently. How can I regain clarity and emotional balance?">
+        Handling stress & worry
       </button>
-      <button type="button" class="quick-chip flex-shrink-0 btn-pill text-xs py-1 px-2.5" data-prompt="What gentle Islamic advice and prophetic sunnah practices help when managing acute anger and frustration?">
-        Managing anger & frustration
+      <button type="button" class="quick-chip flex-shrink-0 btn-pill text-xs py-1 px-2.5" data-prompt="What practical, grounded exercises help when managing acute anger and frustration?">
+        Managing frustration
       </button>
-      <button type="button" class="quick-chip flex-shrink-0 btn-pill text-xs py-1 px-2.5" data-prompt="How can I maintain patience, grace, and firm boundaries during family conflicts?">
-        Patience in family conflicts
+      <button type="button" class="quick-chip flex-shrink-0 btn-pill text-xs py-1 px-2.5" data-prompt="How can I maintain patience, grace, and healthy boundaries during relationship conflicts?">
+        Navigating conflict
       </button>
-      <button type="button" class="quick-chip flex-shrink-0 btn-pill text-xs py-1 px-2.5" data-prompt="What practical prophetic advice helps build consistency in daily prayer, Quran reading, and habits?">
-        Building daily consistency
+      <button type="button" class="quick-chip flex-shrink-0 btn-pill text-xs py-1 px-2.5" data-prompt="What practical strategies help build positive daily habits and steady personal consistency?">
+        Building daily habits
       </button>
     </div>
 
@@ -762,13 +762,13 @@
         <span class="typing-dot"></span>
         <span class="typing-dot"></span>
       </div>
-      <span>Naseeha is typing a reply...</span>
+      <span>Sage is typing a reply...</span>
     </div>
 
     <!-- Chat Input Form -->
     <div class="p-3 border-t border-white/[0.08] glass-header">
       <div class="flex items-center gap-2 glass-inset rounded-2xl px-3 py-1.5">
-        <input type="text" id="chatInput" placeholder="Message Naseeha privately... (Press Enter to send)" class="flex-1 bg-transparent text-sm text-stone-100 focus:outline-none placeholder-stone-500">
+        <input type="text" id="chatInput" placeholder="Message Sage privately... (Press Enter to send)" class="flex-1 bg-transparent text-sm text-stone-100 focus:outline-none placeholder-stone-500">
         <button id="sendChatBtn" type="button" class="p-1.5 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white transition shadow-sm" title="Send message">
           <i data-lucide="send" class="w-4 h-4"></i>
         </button>
@@ -777,7 +777,7 @@
   </aside>
 
   <!-- Floating Messenger Quick Action Button -->
-  <button id="floatingMessengerBtn" type="button" class="floating-messenger-btn" title="Open 1-on-1 Messenger with Naseeha">
+  <button id="floatingMessengerBtn" type="button" class="floating-messenger-btn" title="Open 1-on-1 Messenger with Sage">
     <div class="relative flex items-center justify-center">
       <i data-lucide="message-circle" class="w-6 h-6 text-white"></i>
       <span class="messenger-pulse-dot"></span>
@@ -899,7 +899,7 @@
         <!-- Gemini API Key -->
         <div class="space-y-2">
           <label class="font-semibold text-stone-200 flex items-center justify-between">
-            <span>Gemini API Key (For Naseeha)</span>
+            <span>Gemini API Key (For Sage Companion)</span>
             <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-xs text-emerald-400 hover:underline font-normal">
               Google AI Studio &rarr;
             </a>
@@ -1169,7 +1169,7 @@
       <i data-lucide="calendar" class="w-4 h-4 text-indigo-400"></i>
       <span class="dock-label">Memories</span>
     </button>
-    <button type="button" class="dock-item" data-dock-action="chat" title="Naseeha 1-on-1 Messenger">
+    <button type="button" class="dock-item" data-dock-action="chat" title="Sage 1-on-1 Messenger">
       <i data-lucide="message-circle" class="w-4 h-4 text-teal-400"></i>
       <span class="dock-label">Chat</span>
     </button>

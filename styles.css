@@ -951,7 +951,7 @@ html[data-theme="drikell"] .badge-location {
   border: 1px solid var(--glass-border);
 }
 
-/* Naseeha Floating Drawer in Frosted Glass */
+/* Sage Floating Drawer in Frosted Glass */
 .chat-drawer {
   position: fixed;
   top: 0;
@@ -972,7 +972,7 @@ html[data-theme="drikell"] .badge-location {
   transform: translateX(0);
 }
 
-/* Markdown typography inside Naseeha chat bubbles */
+/* Markdown typography inside Sage chat bubbles */
 .chat-markdown {
   font-size: 0.9375rem;
   line-height: 1.55;

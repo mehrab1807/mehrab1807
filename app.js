@@ -1641,8 +1641,9 @@
           month: 'long',
           day: 'numeric'
         });
-        const prompt = `Here is a reflection from ${dateStr}${item.mood ? ` (${item.mood})` : ''}:\n\n"${item.content}"\n\nPlease offer gentle Islamic perspective and comfort.`;
-        window.NaseehaChat.sendMessage(prompt, handleChatMessageAdded);
+        const prompt = `Here is a reflection from ${dateStr}${item.mood ? ` (${item.mood})` : ''}:\n\n"${item.content}"\n\nPlease offer gentle perspective, comfort, and mindful reflection.`;
+        const chatService = window.CompanionChat || window.NaseehaChat;
+        if (chatService) chatService.sendMessage(prompt, handleChatMessageAdded);
       });
 
       dom.sidebarMemoriesList.appendChild(row);
@@ -1713,11 +1714,12 @@
       return;
     }
 
-    if (!window.NaseehaChat) return;
-    const apiKey = window.NaseehaChat.getApiKey();
+    if (!window.CompanionChat && !window.NaseehaChat) return;
+    const chatService = window.CompanionChat || window.NaseehaChat;
+    const apiKey = chatService.getApiKey();
     if (!apiKey) {
       if (force) {
-        alert('Please configure your Gemini API Key in Settings to receive friend guidance comments from Naseeha.');
+        alert('Please configure your Gemini API Key in Settings to receive friend guidance comments from Sage.');
       }
       return;
     }
@@ -1735,17 +1737,17 @@
             <span class="typing-dot"></span>
             <span class="typing-dot"></span>
           </div>
-          <span>Naseeha is penning a friend's reflection...</span>
+          <span>Sage is penning a friend's reflection...</span>
         `;
         section.prepend(loadingEl);
       }
     }
 
     try {
-      const commentText = await window.NaseehaChat.generateFriendPostComment(post.content, post.mood, post.location);
+      const commentText = await chatService.generateFriendPostComment(post.content, post.mood, post.location);
       const newComment = {
         id: 'comm_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
-        authorName: 'Naseeha',
+        authorName: 'Sage',
         authorRole: 'Friend & Guide',
         avatar: '🌿',
         content: commentText,
@@ -1845,9 +1847,9 @@
 
     const isLiked = state.likedPosts.has(post.id);
 
-    // Comments list and Naseeha friend guide comment
+    // Comments list and Sage friend guide comment
     const commentsList = Array.isArray(post.comments) ? post.comments : [];
-    const guideComment = commentsList.find(c => c.authorRole === 'Friend & Guide' || c.authorName === 'Naseeha');
+    const guideComment = commentsList.find(c => c.authorRole === 'Friend & Guide' || c.authorName === 'Sage' || c.authorName === 'Naseeha');
     const userComments = commentsList.filter(c => c !== guideComment);
 
     let commentsHtml = '';
@@ -1859,12 +1861,12 @@
               <div class="w-6 h-6 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center text-xs">
                 🌿
               </div>
-              <span class="font-semibold text-emerald-300 text-xs">Naseeha</span>
+              <span class="font-semibold text-emerald-300 text-xs">Sage</span>
               <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-medium">Friend & Guide</span>
             </div>
             <div class="flex items-center gap-2">
               <span class="text-[10px] text-stone-400">${formatRelativeTime(guideComment.timestamp)}</span>
-              <button type="button" class="btn-refresh-guide-comment text-stone-400 hover:text-emerald-300 p-0.5 transition" title="Ask Naseeha for a refreshed perspective">
+              <button type="button" class="btn-refresh-guide-comment text-stone-400 hover:text-emerald-300 p-0.5 transition" title="Ask Sage for a refreshed perspective">
                 <i data-lucide="rotate-cw" class="w-3 h-3"></i>
               </button>
             </div>
@@ -1877,7 +1879,7 @@
         <div class="flex items-center justify-between flex-wrap gap-2 py-0.5">
           <button type="button" class="btn-request-guide-comment btn-pill text-xs py-1 px-3 flex items-center gap-1.5 text-emerald-300 bg-emerald-950/30 hover:bg-emerald-900/50 border border-emerald-500/30 transition">
             <i data-lucide="sparkles" class="w-3.5 h-3.5 text-emerald-400"></i>
-            <span>Ask Naseeha to comment as a friend</span>
+            <span>Ask Sage to comment as a friend</span>
           </button>
           <span class="text-[11px] text-stone-500">Get gentle guidance on this entry</span>
         </div>
@@ -1948,7 +1950,7 @@
             </button>
             <button type="button" class="action-icon-btn reflect btn-reflect-post" title="Open 1-on-1 Messenger with this entry">
               <i data-lucide="message-circle" class="w-4 h-4"></i>
-              <span class="text-xs">Chat with Naseeha</span>
+              <span class="text-xs">Chat with Sage</span>
             </button>
             <button type="button" class="action-icon-btn btn-sync-post" title="Drive Sync Status">
               <i data-lucide="repeat" class="w-4 h-4"></i>
@@ -2103,8 +2105,9 @@
           month: 'long',
           day: 'numeric'
         });
-        const prompt = `Here is a journal entry I wrote on ${dateStr}${post.mood ? ` feeling ${post.mood}` : ''}:\n\n"${post.content}"\n\nPlease offer gentle Islamic reflection, comfort, and practical wisdom for my situation.`;
-        window.NaseehaChat.sendMessage(prompt, handleChatMessageAdded);
+        const prompt = `Here is a journal entry I wrote on ${dateStr}${post.mood ? ` feeling ${post.mood}` : ''}:\n\n"${post.content}"\n\nPlease offer gentle reflection, comfort, and mindful perspective for my situation.`;
+        const chatService = window.CompanionChat || window.NaseehaChat;
+        if (chatService) chatService.sendMessage(prompt, handleChatMessageAdded);
       });
     }
 
@@ -2161,7 +2164,7 @@
       }
     });
 
-    // Request & Refresh Naseeha friend guide comment
+    // Request & Refresh Sage friend guide comment
     card.querySelector('.btn-request-guide-comment')?.addEventListener('click', () => {
       generateAndAttachFriendComment(post.id, true);
     });
@@ -2479,7 +2482,7 @@
       await refreshFeed();
       await checkMemories();
 
-      // Automatically request friend's guide comment from Naseeha in the background
+      // Automatically request friend's guide comment from Sage in the background
       generateAndAttachFriendComment(newPost.id).catch(e => console.warn('Auto guide comment error:', e));
 
       if (window.DriveSync && window.DriveSync.isAuthenticated()) {
@@ -2652,7 +2655,7 @@
       await refreshFeed();
       await checkMemories();
 
-      // Automatically request friend's guide comment from Naseeha in the background
+      // Automatically request friend's guide comment from Sage in the background
       generateAndAttachFriendComment(newPost.id).catch(e => console.warn('Auto guide comment error:', e));
 
       if (window.DriveSync && window.DriveSync.isAuthenticated()) {
@@ -2782,7 +2785,7 @@
     }
   }
 
-  // NASEEHA CHAT DRAWER
+  // SAGE CHAT DRAWER
   function openChatDrawer() {
     dom.chatDrawer.classList.add('open');
   }
@@ -2799,7 +2802,7 @@
     if (messages.length === 0) {
       const welcome = {
         role: 'model',
-        content: `Assalamu Alaykum. I am **Naseeha**, your private spiritual counsel and empathetic companion.\n\nI am here to offer grounded reflections, practical paths from Islamic wisdom, and gentle perspective for whatever you carry in your heart today. Feel free to speak candidly or ask for guidance on patience, family, and emotional balance.`
+        content: `Hello! I am **Sage**, your private reflective companion and empathetic friend.\n\nI am here to offer grounded reflections, thoughtful perspective, and a calm space for whatever you carry today. Feel free to speak candidly, unpack your thoughts, or ask for guidance on habits, relationships, and emotional balance.`
       };
       appendChatBubble(welcome);
       return;
@@ -2816,7 +2819,8 @@
     const bubbleWrapper = document.createElement('div');
     bubbleWrapper.className = `flex flex-col ${isUser ? 'items-end' : 'items-start'} mb-3`;
 
-    const parsedContent = window.NaseehaChat ? window.NaseehaChat.formatMarkdown(msg.content) : escapeHtml(msg.content);
+    const chatService = window.SageChat || window.CompanionChat || window.NaseehaChat;
+    const parsedContent = chatService ? chatService.formatMarkdown(msg.content) : escapeHtml(msg.content);
 
     const bubble = document.createElement('div');
     if (isUser) {
@@ -2861,7 +2865,10 @@
     dom.chatInput.value = '';
 
     try {
-      await window.NaseehaChat.sendMessage(text, handleChatMessageAdded);
+      const chatService = window.SageChat || window.CompanionChat || window.NaseehaChat;
+      if (chatService) {
+        await chatService.sendMessage(text, handleChatMessageAdded);
+      }
     } catch (err) {
       console.error(err);
     }
@@ -2905,8 +2912,9 @@
     await window.DiaryDB.saveSetting('gemini_api_key', geminiKey);
     await window.DiaryDB.saveSetting('profile', state.profile);
 
-    if (window.NaseehaChat) {
-      window.NaseehaChat.setApiKey(geminiKey);
+    const chatService = window.SageChat || window.CompanionChat || window.NaseehaChat;
+    if (chatService) {
+      chatService.setApiKey(geminiKey);
     }
 
     applyProfile();
@@ -3263,7 +3271,7 @@
     dom.floatingMessengerBtn?.addEventListener('click', handleToggleChat);
     dom.closeChatBtn?.addEventListener('click', closeChatDrawer);
     dom.clearChatBtn?.addEventListener('click', async () => {
-      if (confirm('Clear chat history with Naseeha?')) {
+      if (confirm('Clear chat history with Sage?')) {
         await window.DiaryDB.clearChatHistory();
         await renderChatHistory();
       }
@@ -3280,17 +3288,20 @@
 
     // Reflect on Journal
     dom.reflectJournalBtn?.addEventListener('click', () => {
-      window.NaseehaChat.reflectOnLatestJournal(handleChatMessageAdded);
+      const chatService = window.SageChat || window.CompanionChat || window.NaseehaChat;
+      if (chatService) chatService.reflectOnLatestJournal(handleChatMessageAdded);
     });
 
     // Quick Action Chips
     dom.quickChips?.forEach(chip => {
       chip.addEventListener('click', () => {
         const prompt = chip.dataset.prompt;
+        const chatService = window.SageChat || window.CompanionChat || window.NaseehaChat;
+        if (!chatService) return;
         if (prompt === '__reflect__') {
-          window.NaseehaChat.reflectOnLatestJournal(handleChatMessageAdded);
+          chatService.reflectOnLatestJournal(handleChatMessageAdded);
         } else if (prompt) {
-          window.NaseehaChat.sendMessage(prompt, handleChatMessageAdded);
+          chatService.sendMessage(prompt, handleChatMessageAdded);
         }
       });
     });

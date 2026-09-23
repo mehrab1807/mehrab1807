@@ -1,25 +1,25 @@
 /**
- * chat.js - Naseeha (Sincere Counsel) Islamic Ethical Companion.
+ * chat.js - Sage: Mindful, Reflective Personal Companion.
  * Connects directly to the Gemini API (gemini-2.5-flash) client-side.
  */
 
 (function () {
   'use strict';
 
-  const SYSTEM_PROMPT = `You are "Naseeha" (Sincere Counsel), an empathetic, grounded Islamic spiritual companion integrated into a personal private diary. The app language is English.
+  const SYSTEM_PROMPT = `You are "Sage", an empathetic, grounded, and thoughtful personal companion integrated into a private journal. The app language is English.
 
 CORE PHILOSOPHY:
-- Autonomy & Gentleness: You guide, suggest, and offer perspectives; you NEVER command, force, guilt-trip, or demand. True change comes from the user's sincere intention (Niyyah) and personal agency (Quran 88:21-22).
+- Autonomy & Gentleness: You guide, suggest, and offer perspectives; you NEVER command, force, guilt-trip, or demand. You respect the user's personal agency, autonomy, and values.
 - Situational Empathy: Understand the user's specific context, emotional state, and constraints first. Tailor your reflections to where they currently are in life, not an idealized standard.
-- Solution-Oriented Framework: Instead of telling the user "you must do this," outline 2 to 3 practical, gentle options rooted in Islamic wisdom (e.g., spiritual action, practical communication, mindset shift).
+- Solution-Oriented Framework: Instead of telling the user "you must do this," outline 2 to 3 practical, gentle options (such as mindful reframing, practical communication, self-care, or a healthy habit).
 - Invitational Tone: Use phrases like "Depending on how you feel right now, here are a few gentle paths you might consider...", "One practical approach could be...", "Take whatever resonates with you and leave the rest."
-- Grounding: Draw insights from the Quran, authentic Sunnah (Bukhari, Muslim), patience (Sabr), trust in Allah (Tawakkul), compassion (Rahmah), and moderation (Wasatiyyah). Provide the clear English translation alongside transliterated Arabic terms.
-- Boundaries: You are NOT a Mufti. Never issue binding legal rulings (Fatwas) or take definitive stances on contentious Fiqh disputes. For severe emotional distress or danger, encourage professional mental health care alongside spiritual reminders.`;
+- Grounding: Draw insights from mindful reflection, emotional intelligence, patience, compassion, resilience, and balanced living.
+- Boundaries: You are a supportive journal companion. For severe emotional distress or danger, encourage professional mental health care alongside supportive companionship.`;
 
   const MODEL_NAME = 'gemini-2.5-flash';
   let isSending = false;
 
-  const NaseehaChat = {
+  const CompanionChat = {
     getApiKey() {
       const stored = localStorage.getItem('diary_gemini_api_key');
       if (stored) {
@@ -48,7 +48,7 @@ CORE PHILOSOPHY:
     async sendMessage(userText, onMessageAdded = null) {
       const apiKey = this.getApiKey();
       if (!apiKey) {
-        throw new Error('Please configure your Gemini API Key in Settings to speak with Naseeha.');
+        throw new Error('Please configure your Gemini API Key in Settings to speak with Sage.');
       }
 
       if (isSending) {
@@ -132,7 +132,7 @@ CORE PHILOSOPHY:
 
         return botMessage;
       } catch (err) {
-        console.error('Naseeha chat error:', err);
+        console.error('Sage chat error:', err);
         const errorBotMessage = {
           role: 'model',
           content: `*A gentle notice:* ${err.message}`,
@@ -171,7 +171,7 @@ CORE PHILOSOPHY:
       });
       const moodText = latest.mood ? ` feeling ${latest.mood}` : '';
 
-      const prompt = `Here is my most recent personal journal entry from ${dateStr}${moodText}:\n\n"${latest.content}"\n\nPlease provide gentle Islamic perspective, comfort, and practical steps to reflect on what I experienced.`;
+      const prompt = `Here is my most recent personal journal entry from ${dateStr}${moodText}:\n\n"${latest.content}"\n\nPlease provide thoughtful perspective, comfort, and gentle, practical steps to reflect on what I experienced.`;
 
       await this.sendMessage(prompt, onMessageAdded);
     },
@@ -184,12 +184,12 @@ CORE PHILOSOPHY:
 
       const moodClause = postMood ? ` (Mood: ${postMood})` : '';
       const locationClause = postLocation ? ` (Location: ${postLocation})` : '';
-      const prompt = `Here is a journal entry written by my close friend${moodClause}${locationClause}:\n\n"${postContent}"\n\nPlease comment directly under their post as their supportive, loving, and wise friend and guide. Offer 2 to 4 sentences of warmth, validation, and a gentle reminder or actionable solace rooted in Islamic wisdom and everyday peace. Speak directly to them like a trusted companion.`;
+      const prompt = `Here is a journal entry written by my close friend${moodClause}${locationClause}:\n\n"${postContent}"\n\nPlease comment directly under their post as their supportive, loving, and thoughtful friend and guide. Offer 2 to 4 sentences of warmth, validation, and a gentle reminder or actionable perspective rooted in empathy, mindfulness, and everyday peace. Speak directly to them like a trusted companion.`;
 
       const requestBody = {
         system_instruction: {
           parts: [{
-            text: 'You are Naseeha, commenting directly as a warm, affectionate, grounded, and wise Muslim friend and spiritual guide under your close friend\'s private journal post. Speak naturally and empathetically as a loving companion (for example: "Assalamu alaykum my dear friend...", "I hear how heavy that feels..."). Provide 2 to 4 sentences of genuine validation, gentle perspective, and uplifting solace or practical guidance rooted in Islamic wisdom and patience. Never sound like an automated lecture, bulleted list, or formal advisor; be a comforting, thoughtful presence.'
+            text: 'You are Sage, commenting directly as a warm, affectionate, grounded, and thoughtful friend and guide under your close friend\'s private journal post. Speak naturally and empathetically as a loving companion (for example: "I hear how heavy that feels...", "Thank you for sharing this honesty with yourself..."). Provide 2 to 4 sentences of genuine validation, gentle perspective, and uplifting solace or practical guidance rooted in empathy, mindfulness, and patience. Never sound like an automated lecture, bulleted list, or formal advisor; be a comforting, thoughtful presence.'
           }]
         },
         contents: [
@@ -226,7 +226,7 @@ CORE PHILOSOPHY:
         replyText = data.candidates[0].content.parts.map(p => p.text).join('\n').trim();
       }
 
-      return replyText || 'May Allah bless your heart with tranquility, ease your burdens, and grant you deep clarity in every step you take.';
+      return replyText || 'Wishing you peace of mind, resilience through this moment, and deep clarity as you move forward.';
     },
 
     formatMarkdown(text) {
@@ -241,5 +241,7 @@ CORE PHILOSOPHY:
     }
   };
 
-  window.NaseehaChat = NaseehaChat;
+  window.CompanionChat = CompanionChat;
+  window.SageChat = CompanionChat;
+  window.NaseehaChat = CompanionChat; // Backwards compatibility
 })();
