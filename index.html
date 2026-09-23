@@ -813,29 +813,85 @@
       </div>
 
       <div class="space-y-4 max-h-[75vh] overflow-y-auto text-sm pr-1">
-        <!-- Google OAuth Credentials -->
-        <div class="space-y-2">
-          <label class="font-semibold text-stone-200 flex items-center justify-between">
-            <span>Google OAuth 2.0 Client ID</span>
-            <a href="https://console.cloud.google.com/apis/credentials" target="_blank" class="text-xs text-amber-400 hover:underline font-normal">
-              Google Cloud &rarr;
-            </a>
-          </label>
-          <input type="text" id="clientIdInput" placeholder="e.g. 123456789-abcdefg.apps.googleusercontent.com" class="w-full glass-inset p-2.5 text-xs text-stone-100 focus:outline-none focus:border-amber-500 font-mono">
-          <p class="text-[11px] text-stone-400">
-            Authorised JavaScript origin: <code id="originDisplay" class="bg-black/30 px-1 rounded text-amber-300">http://localhost:8000</code>.
-          </p>
-          <div class="flex items-center gap-2 pt-1">
-            <button type="button" id="connectDriveBtn" class="btn-post-primary text-xs">
-              Connect Google Drive
-            </button>
-            <button type="button" id="disconnectDriveBtn" class="hidden btn-pill text-xs">
-              Disconnect Drive
-            </button>
-            <button type="button" id="manualSyncBtn" class="btn-pill text-xs text-amber-400 hover:text-amber-300">
-              Sync Now
+        <!-- Google Account & Drive Integration -->
+        <div class="glass-inset p-4 space-y-3.5 rounded-2xl border border-white/10">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              <h4 class="font-semibold text-stone-100 text-sm">Google Account & Cloud Storage</h4>
+            </div>
+            <span id="googleAccountStatusBadge" class="text-[10px] px-2.5 py-0.5 rounded-full bg-stone-800 text-stone-400 font-medium">Disconnected</span>
+          </div>
+
+          <!-- Unauthenticated State -->
+          <div id="googleUnlinkedState" class="space-y-3">
+            <p class="text-xs text-stone-300 leading-relaxed">
+              Connect your Google account to automatically set your profile name and photo, link your private Google Drive, and sync your journal securely in the background.
+            </p>
+            <button type="button" id="googleSignInBtn" class="w-full flex items-center justify-center gap-3 py-2.5 px-4 rounded-xl bg-white hover:bg-stone-100 text-stone-900 font-semibold text-xs shadow-md transition">
+              <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              <span>Sign in with Google</span>
             </button>
           </div>
+
+          <!-- Authenticated State -->
+          <div id="googleLinkedState" class="hidden space-y-3">
+            <div class="flex items-center gap-3 p-2.5 rounded-xl bg-white/5 border border-white/10">
+              <div id="googleUserAvatar" class="w-10 h-10 rounded-full overflow-hidden bg-stone-800 flex-shrink-0 border border-white/15 flex items-center justify-center text-lg">
+                <!-- Avatar image rendered dynamically -->
+              </div>
+              <div class="min-w-0 flex-1">
+                <div id="googleUserName" class="text-xs font-semibold text-stone-100 truncate">Google User</div>
+                <div id="googleUserEmail" class="text-[11px] text-stone-400 truncate">user@gmail.com</div>
+              </div>
+              <div class="flex-shrink-0">
+                <span class="inline-flex items-center gap-1 text-[11px] text-emerald-400 font-medium">
+                  <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Active
+                </span>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 flex-wrap pt-0.5">
+              <button type="button" id="manualSyncBtn" class="btn-post-primary text-xs py-1.5 px-3 flex items-center gap-1.5">
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                <span id="manualSyncBtnLabel">Sync Now</span>
+              </button>
+              <button type="button" id="disconnectDriveBtn" class="btn-pill text-xs py-1.5 px-3 text-rose-300 hover:text-rose-200 hover:border-rose-500/40">
+                Disconnect Account
+              </button>
+              <span id="lastSyncTimeText" class="text-[11px] text-stone-400 ml-auto"></span>
+            </div>
+          </div>
+
+          <!-- Collapsible Developer / Advanced Project Options -->
+          <details class="text-xs text-stone-400 pt-1 group">
+            <summary class="cursor-pointer hover:text-stone-300 select-none flex items-center gap-1 text-[11px]">
+              <span>Developer / Custom Client ID</span>
+            </summary>
+            <div class="space-y-2 mt-2 pt-2 border-t border-white/[0.08]">
+              <div class="flex items-center justify-between">
+                <label class="text-[11px] text-stone-300">Google OAuth 2.0 Client ID</label>
+                <a href="https://console.cloud.google.com/apis/credentials" target="_blank" class="text-[11px] text-amber-400 hover:underline">
+                  Google Cloud Console &rarr;
+                </a>
+              </div>
+              <input type="text" id="clientIdInput" placeholder="e.g. 123456789-abcdefg.apps.googleusercontent.com" class="w-full glass-inset p-2 text-xs text-stone-100 focus:outline-none focus:border-amber-500 font-mono">
+              <p class="text-[10px] text-stone-400 leading-normal">
+                Authorised JavaScript origin: <code id="originDisplay" class="bg-black/40 px-1 rounded text-amber-300 font-mono"></code>.
+              </p>
+            </div>
+          </details>
         </div>
 
         <hr class="border-white/[0.08]">
@@ -1036,6 +1092,56 @@
       <div class="pt-2">
         <button id="dismissIosInstallBtn" type="button" class="w-full btn-post-primary py-2 text-xs font-semibold">
           Got it
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Google Cloud 1-Time Setup -->
+  <div id="googleSetupModal" class="hidden fixed inset-0 z-50 bg-black/45 backdrop-blur-xl flex items-center justify-center p-4">
+    <div class="glass-container w-full max-w-md overflow-hidden shadow-2xl p-6 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+        <div class="flex items-center gap-2">
+          <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+          </svg>
+          <h3 class="font-bold text-base text-stone-100">Connect Google Account</h3>
+        </div>
+        <button id="closeGoogleSetupBtn" type="button" class="p-1 rounded-full hover:bg-white/10 text-stone-400 hover:text-white transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3.5 text-xs text-stone-200 leading-relaxed">
+        <p>
+          Alcove communicates directly between your device and Google Drive with zero intermediate servers. To enable browser authentication, provide your Google Cloud OAuth Client ID:
+        </p>
+
+        <div class="glass-inset p-3 space-y-2">
+          <div class="flex items-center justify-between text-[11px] text-stone-400">
+            <span>Authorised JavaScript Origin:</span>
+            <button type="button" id="copyOriginBtn" class="text-amber-400 hover:underline">Copy Origin</button>
+          </div>
+          <code id="setupModalOrigin" class="block bg-black/40 p-1.5 rounded text-amber-300 font-mono text-[11px] select-all"></code>
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="font-semibold text-stone-200 block text-xs">Google OAuth Client ID</label>
+          <input type="text" id="setupClientIdInput" placeholder="123456789-abcdefg.apps.googleusercontent.com" class="w-full glass-inset p-2.5 text-xs text-stone-100 focus:outline-none focus:border-amber-500 font-mono">
+        </div>
+
+        <p class="text-[11px] text-stone-400">
+          Saved strictly on this device in private storage. Google will prompt for your username and password next.
+        </p>
+      </div>
+
+      <div class="pt-2 flex items-center gap-2">
+        <button id="submitGoogleSetupBtn" type="button" class="flex-1 btn-post-primary py-2.5 text-xs font-semibold flex items-center justify-center gap-2">
+          <span>Save & Continue to Google Sign In</span>
+          <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
         </button>
       </div>
     </div>

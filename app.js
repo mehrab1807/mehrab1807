@@ -24,6 +24,7 @@
       colorMode: 'dark'
     },
     googleClientId: '',
+    googleProfile: null,
     geminiApiKey: '',
     syncStatus: 'offline',
     selectedComposerFiles: [],
@@ -316,6 +317,16 @@
       removeProfilePicBtn: document.getElementById('removeProfilePicBtn'),
       presetAvatarsContainer: document.getElementById('presetAvatarsContainer'),
       themeToggle: document.getElementById('themeToggle'),
+      // Google Account Card & Settings
+      googleSignInBtn: document.getElementById('googleSignInBtn'),
+      googleAccountStatusBadge: document.getElementById('googleAccountStatusBadge'),
+      googleUnlinkedState: document.getElementById('googleUnlinkedState'),
+      googleLinkedState: document.getElementById('googleLinkedState'),
+      googleUserAvatar: document.getElementById('googleUserAvatar'),
+      googleUserName: document.getElementById('googleUserName'),
+      googleUserEmail: document.getElementById('googleUserEmail'),
+      manualSyncBtnLabel: document.getElementById('manualSyncBtnLabel'),
+      lastSyncTimeText: document.getElementById('lastSyncTimeText'),
       connectDriveBtn: document.getElementById('connectDriveBtn'),
       disconnectDriveBtn: document.getElementById('disconnectDriveBtn'),
       manualSyncBtn: document.getElementById('manualSyncBtn'),
@@ -323,6 +334,14 @@
       settingsInstallBtn: document.getElementById('settingsInstallBtn'),
       iosInstructionsBtn: document.getElementById('iosInstructionsBtn'),
       pwaInstalledBadge: document.getElementById('pwaInstalledBadge'),
+
+      // Google Setup Modal
+      googleSetupModal: document.getElementById('googleSetupModal'),
+      closeGoogleSetupBtn: document.getElementById('closeGoogleSetupBtn'),
+      copyOriginBtn: document.getElementById('copyOriginBtn'),
+      setupModalOrigin: document.getElementById('setupModalOrigin'),
+      setupClientIdInput: document.getElementById('setupClientIdInput'),
+      submitGoogleSetupBtn: document.getElementById('submitGoogleSetupBtn'),
 
       // iOS Install Modal
       iosInstallModal: document.getElementById('iosInstallModal'),
@@ -528,6 +547,9 @@
 
     const geminiKey = await window.DiaryDB.getSetting('gemini_api_key', '');
     state.geminiApiKey = geminiKey;
+
+    const googleProfile = await window.DiaryDB.getSetting('google_profile', null);
+    state.googleProfile = googleProfile || (window.DriveSync && window.DriveSync.getStoredProfile());
 
     applyProfile();
   }
@@ -757,41 +779,89 @@
     renderPresetAvatars();
     applyTheme(state.profile.theme || 'cyberneon', state.profile.colorMode || 'dark');
 
-    if (dom.clientIdInput) dom.clientIdInput.value = state.googleClientId;
-    if (dom.geminiKeyInput) dom.geminiKeyInput.value = state.geminiApiKey;
-    if (dom.displayNameInput) dom.displayNameInput.value = state.profile.name;
+    if (dom.clientIdInput) dom.clientIdInput.value = state.googleClientId || '';
+    if (dom.geminiKeyInput) dom.geminiKeyInput.value = state.geminiApiKey || '';
+    if (dom.displayNameInput) dom.displayNameInput.value = state.profile.name || 'Alcove Resident';
     if (dom.avatarSelect) dom.avatarSelect.value = state.profile.avatar || '🌙';
     const originEl = document.getElementById('originDisplay');
     if (originEl) originEl.textContent = window.location.origin;
+
+    // Apply Google Account card in Settings
+    const isAuthed = Boolean(window.DriveSync && window.DriveSync.isAuthenticated());
+    if (dom.googleLinkedState && dom.googleUnlinkedState) {
+      dom.googleLinkedState.classList.toggle('hidden', !isAuthed);
+      dom.googleUnlinkedState.classList.toggle('hidden', isAuthed);
+    }
+    if (dom.googleAccountStatusBadge) {
+      dom.googleAccountStatusBadge.textContent = isAuthed ? 'Connected' : 'Disconnected';
+      dom.googleAccountStatusBadge.className = isAuthed
+        ? 'text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-medium'
+        : 'text-[10px] px-2.5 py-0.5 rounded-full bg-stone-800 text-stone-400 font-medium';
+    }
+
+    const googleProf = state.googleProfile || (window.DriveSync && window.DriveSync.getStoredProfile());
+    if (googleProf) {
+      if (dom.googleUserName) dom.googleUserName.textContent = googleProf.name || 'Google User';
+      if (dom.googleUserEmail) dom.googleUserEmail.textContent = googleProf.email || '';
+      if (dom.googleUserAvatar) {
+        renderAvatarElement(dom.googleUserAvatar, googleProf.picture, '👤', googleProf.name);
+      }
+    }
   }
 
   function updateSyncBadge(status, detail) {
-    if (!dom.syncStatusBadge) return;
-    const dot = dom.syncStatusBadge.querySelector('.status-dot');
-    const label = dom.syncStatusBadge.querySelector('.status-text');
+    if (dom.syncStatusBadge) {
+      const dot = dom.syncStatusBadge.querySelector('.status-dot');
+      const label = dom.syncStatusBadge.querySelector('.status-text');
 
-    if (status === 'connected' || status === 'synced') {
-      dot.className = 'status-dot w-2 h-2 rounded-full bg-emerald-500';
-      label.textContent = 'Drive Synced';
-      dom.syncStatusBadge.title = detail || 'Connected and up to date';
-      if (dom.connectDriveBtn) dom.connectDriveBtn.classList.add('hidden');
-      if (dom.disconnectDriveBtn) dom.disconnectDriveBtn.classList.remove('hidden');
-    } else if (status === 'syncing') {
-      dot.className = 'status-dot w-2 h-2 rounded-full bg-amber-500 animate-pulse';
-      label.textContent = 'Syncing...';
-      dom.syncStatusBadge.title = detail || 'Syncing data with Google Drive';
-    } else if (status === 'unauthorized' || status === 'error') {
-      dot.className = 'status-dot w-2 h-2 rounded-full bg-rose-500';
-      label.textContent = 'Sync Error';
-      dom.syncStatusBadge.title = detail || 'Authorisation or connection error';
-      if (dom.connectDriveBtn) dom.connectDriveBtn.classList.remove('hidden');
-      if (dom.disconnectDriveBtn) dom.disconnectDriveBtn.classList.add('hidden');
-    } else {
-      dot.className = 'status-dot w-2 h-2 rounded-full bg-stone-500';
-      label.textContent = 'Offline / Local';
-      dom.syncStatusBadge.title = 'Saved to IndexedDB offline. Add Google Client ID in Settings to sync.';
-      if (dom.connectDriveBtn) dom.connectDriveBtn.classList.remove('hidden');
-      if (dom.disconnectDriveBtn) dom.disconnectDriveBtn.classList.add('hidden');
+      if (status === 'connected' || status === 'synced') {
+        if (dot) dot.className = 'status-dot w-2 h-2 rounded-full bg-emerald-500';
+        if (label) label.textContent = 'Drive Synced';
+        dom.syncStatusBadge.title = detail || 'Connected and up to date';
+      } else if (status === 'syncing') {
+        if (dot) dot.className = 'status-dot w-2 h-2 rounded-full bg-amber-500 animate-pulse';
+        if (label) label.textContent = 'Syncing...';
+        dom.syncStatusBadge.title = detail || 'Syncing data with Google Drive';
+      } else if (status === 'unauthorized' || status === 'error') {
+        if (dot) dot.className = 'status-dot w-2 h-2 rounded-full bg-rose-500';
+        if (label) label.textContent = 'Sync Error';
+        dom.syncStatusBadge.title = detail || 'Authorisation or connection error';
+      } else {
+        if (dot) dot.className = 'status-dot w-2 h-2 rounded-full bg-stone-500';
+        if (label) label.textContent = 'Offline / Local';
+        dom.syncStatusBadge.title = 'Saved to IndexedDB offline. Sign in with Google to sync.';
+      }
+    }
+
+    const isAuthed = Boolean((window.DriveSync && window.DriveSync.isAuthenticated()) || status === 'connected' || status === 'synced');
+    if (dom.googleLinkedState && dom.googleUnlinkedState) {
+      dom.googleLinkedState.classList.toggle('hidden', !isAuthed);
+      dom.googleUnlinkedState.classList.toggle('hidden', isAuthed);
+    }
+    if (dom.googleAccountStatusBadge) {
+      if (isAuthed) {
+        dom.googleAccountStatusBadge.textContent = 'Connected';
+        dom.googleAccountStatusBadge.className = 'text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-medium';
+      } else {
+        dom.googleAccountStatusBadge.textContent = 'Disconnected';
+        dom.googleAccountStatusBadge.className = 'text-[10px] px-2.5 py-0.5 rounded-full bg-stone-800 text-stone-400 font-medium';
+      }
+    }
+
+    if (status === 'synced') {
+      const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      if (dom.lastSyncTimeText) {
+        dom.lastSyncTimeText.textContent = `Synced ${nowStr}`;
+      }
+    }
+
+    const googleProf = state.googleProfile || (window.DriveSync && window.DriveSync.getStoredProfile());
+    if (googleProf) {
+      if (dom.googleUserName) dom.googleUserName.textContent = googleProf.name || 'Google User';
+      if (dom.googleUserEmail) dom.googleUserEmail.textContent = googleProf.email || '';
+      if (dom.googleUserAvatar) {
+        renderAvatarElement(dom.googleUserAvatar, googleProf.picture, '👤', googleProf.name);
+      }
     }
   }
 
@@ -2824,11 +2894,14 @@
       name,
       avatar,
       avatarImage: state.profile.avatarImage || null,
-      theme: state.profile.theme || 'crystal',
-      colorMode: state.profile.colorMode || 'light'
+      theme: state.profile.theme || 'cyberneon',
+      colorMode: state.profile.colorMode || 'dark'
     };
 
     await window.DiaryDB.saveSetting('google_client_id', clientId);
+    if (clientId) {
+      localStorage.setItem('diary_google_client_id', JSON.stringify(clientId));
+    }
     await window.DiaryDB.saveSetting('gemini_api_key', geminiKey);
     await window.DiaryDB.saveSetting('profile', state.profile);
 
@@ -2851,6 +2924,129 @@
     closeSettings();
     await refreshFeed();
     alert('Settings saved successfully.');
+  }
+
+  // Google Authentication & Profile Auto-Population Handlers
+  window.onGoogleProfileReceived = async function (profile) {
+    if (!profile) return;
+    state.googleProfile = profile;
+    await window.DiaryDB.saveSetting('google_profile', profile);
+
+    let profileUpdated = false;
+    if (profile.name && (!state.profile.name || state.profile.name === 'Alcove Resident')) {
+      state.profile.name = profile.name;
+      profileUpdated = true;
+    }
+    if (profile.picture) {
+      state.profile.avatarImage = profile.picture;
+      profileUpdated = true;
+    }
+
+    if (profileUpdated) {
+      await window.DiaryDB.saveSetting('profile', state.profile);
+    }
+
+    applyProfile();
+    await refreshFeed();
+  };
+
+  window.onGoogleDisconnected = function () {
+    state.googleProfile = null;
+    applyProfile();
+  };
+
+  function openGoogleSetupModal() {
+    if (!dom.googleSetupModal) return;
+    if (dom.setupModalOrigin) {
+      dom.setupModalOrigin.textContent = window.location.origin;
+    }
+    if (dom.setupClientIdInput) {
+      dom.setupClientIdInput.value = state.googleClientId || '';
+    }
+    dom.googleSetupModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    if (typeof lucide !== 'undefined' && lucide.createIcons) {
+      lucide.createIcons();
+    }
+  }
+
+  function closeGoogleSetupModal() {
+    if (!dom.googleSetupModal) return;
+    dom.googleSetupModal.classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  async function submitGoogleSetup() {
+    const clientId = dom.setupClientIdInput?.value.trim();
+    if (!clientId) {
+      alert('Please enter your Google OAuth Client ID.');
+      return;
+    }
+
+    state.googleClientId = clientId;
+    if (dom.clientIdInput) dom.clientIdInput.value = clientId;
+    await window.DiaryDB.saveSetting('google_client_id', clientId);
+    localStorage.setItem('diary_google_client_id', JSON.stringify(clientId));
+
+    closeGoogleSetupModal();
+
+    if (window.DriveSync) {
+      window.DriveSync.init(clientId);
+      try {
+        window.DriveSync.requestAuth(true);
+      } catch (err) {
+        alert('Could not start Google Sign In: ' + (err.message || 'Error'));
+      }
+    }
+  }
+
+  function handleGoogleSignIn() {
+    let clientId = state.googleClientId;
+    if (!clientId) {
+      const stored = localStorage.getItem('diary_google_client_id');
+      if (stored) {
+        try { clientId = JSON.parse(stored); } catch { clientId = stored; }
+      }
+    }
+    if (!clientId && dom.clientIdInput) {
+      clientId = dom.clientIdInput.value.trim();
+    }
+
+    if (clientId) {
+      state.googleClientId = clientId;
+      if (window.DriveSync) {
+        window.DriveSync.init(clientId);
+        try {
+          window.DriveSync.requestAuth(true);
+        } catch (e) {
+          alert('Could not start Google Sign In: ' + (e.message || 'Error'));
+        }
+      }
+    } else {
+      openGoogleSetupModal();
+    }
+  }
+
+  async function handleManualSync() {
+    if (!window.DriveSync || !window.DriveSync.isAuthenticated()) {
+      handleGoogleSignIn();
+      return;
+    }
+    try {
+      if (dom.manualSyncBtn) dom.manualSyncBtn.disabled = true;
+      if (dom.manualSyncBtnLabel) dom.manualSyncBtnLabel.textContent = 'Syncing...';
+      await window.DriveSync.syncAll();
+      await refreshFeed();
+      await refreshVault();
+      await refreshNotes();
+      await refreshTasks();
+      alert('Google Drive synchronised successfully.');
+    } catch (err) {
+      alert('Sync failed: ' + (err.message || 'Unknown error'));
+    } finally {
+      if (dom.manualSyncBtn) dom.manualSyncBtn.disabled = false;
+      if (dom.manualSyncBtnLabel) dom.manualSyncBtnLabel.textContent = 'Sync Now';
+    }
   }
 
   // EVENT LISTENERS WIRE-UP
@@ -3186,17 +3382,30 @@
       }
     });
 
-    dom.connectDriveBtn?.addEventListener('click', () => {
-      if (!state.googleClientId) {
-        alert('Please enter your Google OAuth Client ID first.');
-        return;
-      }
+    dom.googleSignInBtn?.addEventListener('click', handleGoogleSignIn);
+    dom.connectDriveBtn?.addEventListener('click', handleGoogleSignIn);
+    dom.closeGoogleSetupBtn?.addEventListener('click', closeGoogleSetupModal);
+    dom.submitGoogleSetupBtn?.addEventListener('click', submitGoogleSetup);
+
+    dom.copyOriginBtn?.addEventListener('click', async () => {
       try {
-        window.DriveSync.requestAuth(true);
-      } catch (e) {
-        alert(e.message);
+        await navigator.clipboard.writeText(window.location.origin);
+        if (dom.copyOriginBtn) dom.copyOriginBtn.textContent = 'Copied!';
+        setTimeout(() => {
+          if (dom.copyOriginBtn) dom.copyOriginBtn.textContent = 'Copy Origin';
+        }, 2000);
+      } catch {
+        if (dom.setupModalOrigin) {
+          const range = document.createRange();
+          range.selectNodeContents(dom.setupModalOrigin);
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }
       }
     });
+
+    dom.syncStatusBadge?.addEventListener('click', openSettings);
 
     dom.disconnectDriveBtn?.addEventListener('click', () => {
       if (window.DriveSync) {
@@ -3204,33 +3413,14 @@
       }
     });
 
-    dom.manualSyncBtn?.addEventListener('click', async () => {
-      if (!window.DriveSync || !window.DriveSync.isAuthenticated()) {
-        alert('Please connect to Google Drive first.');
-        return;
-      }
-      try {
-        dom.manualSyncBtn.disabled = true;
-        dom.manualSyncBtn.textContent = 'Syncing...';
-        await window.DriveSync.syncAll();
-        await refreshFeed();
-        await refreshVault();
-        await refreshNotes();
-        await refreshTasks();
-        alert('Sync completed successfully.');
-      } catch (err) {
-        alert('Sync failed: ' + err.message);
-      } finally {
-        dom.manualSyncBtn.disabled = false;
-        dom.manualSyncBtn.textContent = 'Sync Now';
-      }
-    });
+    dom.manualSyncBtn?.addEventListener('click', handleManualSync);
 
     // Global Keyboard Shortcuts
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         if (state.lightbox.isOpen) closeLightbox();
         else if (state.currentTab === 'search') clearSearch();
+        else if (dom.googleSetupModal && !dom.googleSetupModal.classList.contains('hidden')) closeGoogleSetupModal();
         else if (!dom.composerModal.classList.contains('hidden')) closeComposer();
         else if (!dom.settingsModal.classList.contains('hidden')) closeSettings();
         else if (dom.chatDrawer.classList.contains('open')) closeChatDrawer();

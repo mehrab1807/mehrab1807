@@ -61,7 +61,7 @@
 
       tokenClient = google.accounts.oauth2.initTokenClient({
         client_id: clientId,
-        scope: 'https://www.googleapis.com/auth/drive.file',
+        scope: 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
         callback: (response) => {
           if (response.error) {
             console.error('OAuth token error:', response);
@@ -75,12 +75,25 @@
           localStorage.setItem('diary_drive_token_exp', tokenExpiresAt.toString());
           sessionStorage.setItem('diary_drive_token', accessToken);
           sessionStorage.setItem('diary_drive_token_exp', tokenExpiresAt.toString());
-          this.notifyStatus('connected', 'Google Drive connected.');
-          if (typeof onTokenReceived === 'function') {
-            onTokenReceived(accessToken);
-          }
-          // Trigger initial background sync
-          this.syncAll().catch(err => console.error('Initial sync error:', err));
+
+          // Automatically fetch Google user profile
+          this.fetchUserProfile(accessToken).then((profile) => {
+            if (profile) {
+              localStorage.setItem('diary_google_profile', JSON.stringify(profile));
+              if (typeof window.onGoogleProfileReceived === 'function') {
+                window.onGoogleProfileReceived(profile);
+              }
+            }
+          }).catch((err) => {
+            console.warn('Failed to retrieve Google profile:', err);
+          }).finally(() => {
+            this.notifyStatus('connected', 'Google Drive connected.');
+            if (typeof onTokenReceived === 'function') {
+              onTokenReceived(accessToken);
+            }
+            // Trigger initial background sync
+            this.syncAll().catch(err => console.error('Initial sync error:', err));
+          });
         }
       });
 
@@ -96,11 +109,42 @@
       return true;
     },
 
+    async fetchUserProfile(token = null) {
+      const activeToken = token || accessToken;
+      if (!activeToken) return null;
+      try {
+        const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${activeToken}` }
+        });
+        if (!res.ok) {
+          console.warn('Profile fetch response not ok:', res.status, res.statusText);
+          return null;
+        }
+        return await res.json();
+      } catch (err) {
+        console.warn('Profile fetch network error:', err);
+        return null;
+      }
+    },
+
+    getStoredProfile() {
+      try {
+        const raw = localStorage.getItem('diary_google_profile');
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
+      }
+    },
+
     requestAuth(promptConsent = false) {
       if (!tokenClient) {
         const storedClientId = localStorage.getItem('diary_google_client_id');
         if (storedClientId) {
-          this.init(JSON.parse(storedClientId));
+          try {
+            this.init(JSON.parse(storedClientId));
+          } catch {
+            this.init(storedClientId);
+          }
         }
       }
       if (!tokenClient) {
@@ -119,9 +163,13 @@
       tokenExpiresAt = 0;
       localStorage.removeItem('diary_drive_token');
       localStorage.removeItem('diary_drive_token_exp');
+      localStorage.removeItem('diary_google_profile');
       sessionStorage.removeItem('diary_drive_token');
       sessionStorage.removeItem('diary_drive_token_exp');
       this.notifyStatus('disconnected', 'Disconnected from Google Drive.');
+      if (typeof window.onGoogleDisconnected === 'function') {
+        window.onGoogleDisconnected();
+      }
     },
 
     isAuthenticated() {
