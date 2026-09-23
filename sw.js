@@ -1,10 +1,10 @@
 /**
- * sw.js - Service Worker for Alcove PWA
+ * sw.js - Service Worker for Rukn PWA
  * Provides full offline resilience, cache-first local asset serving,
  * and seamless background synchronization.
  */
 
-const CACHE_NAME = 'alcove-pwa-v4';
+const CACHE_NAME = 'rukn-pwa-v1';
 
 const PRECACHE_ASSETS = [
   './',
@@ -46,7 +46,7 @@ self.addEventListener('install', (event) => {
       })
       .then(() => self.skipWaiting())
       .catch((err) => {
-        console.warn('Alcove Service Worker precache warning:', err);
+        console.warn('Rukn Service Worker precache warning:', err);
       })
   );
 });

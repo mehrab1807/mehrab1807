@@ -1,13 +1,14 @@
 /**
  * driveSync.js - Google Identity Services and Google Drive API v3 client abstraction.
- * Provides offline-first background synchronisation to /Alcove_Data/ (or legacy /PersonalDiaryApp_Data/).
+ * Provides offline-first background synchronisation to /Rukn_Data/ (or legacy /Alcove_Data/ and /PersonalDiaryApp_Data/).
  */
 
 (function () {
   'use strict';
 
-  const ROOT_FOLDER_NAME = 'Alcove_Data';
-  const LEGACY_ROOT_FOLDER_NAME = 'PersonalDiaryApp_Data';
+  const ROOT_FOLDER_NAME = 'Rukn_Data';
+  const LEGACY_ROOT_FOLDER_NAME = 'Alcove_Data';
+  const PREVIOUS_LEGACY_ROOT_FOLDER_NAME = 'PersonalDiaryApp_Data';
   const POSTS_FOLDER_NAME = 'posts';
   const MEDIA_FOLDER_NAME = 'media';
   const VAULT_FOLDER_NAME = 'vault';
@@ -254,10 +255,13 @@
         return folderCache;
       }
 
-      // Root app folder: check Alcove_Data first, fallback to PersonalDiaryApp_Data if found
+      // Root app folder: check Rukn_Data first, fallback to Alcove_Data, then PersonalDiaryApp_Data if found
       let rootFolder = await this.findFolder(ROOT_FOLDER_NAME);
       if (!rootFolder) {
         rootFolder = await this.findFolder(LEGACY_ROOT_FOLDER_NAME);
+      }
+      if (!rootFolder) {
+        rootFolder = await this.findFolder(PREVIOUS_LEGACY_ROOT_FOLDER_NAME);
       }
 
       if (rootFolder) {
@@ -379,7 +383,7 @@
 
       // Local profile and preferences
       const profile = await window.DiaryDB.getSetting('profile', {
-        name: 'Alcove Resident',
+        name: 'Rukn Resident',
         avatar: '🌙',
         theme: 'light'
       });
@@ -395,7 +399,7 @@
       }));
 
       const manifestData = {
-        app: 'Alcove',
+        app: 'Rukn',
         version: '1.0.0',
         lastUpdated: new Date().toISOString(),
         profile,

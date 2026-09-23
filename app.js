@@ -17,7 +17,7 @@
     notes: [],
     tasks: [],
     profile: {
-      name: 'Alcove Resident',
+      name: 'Rukn Resident',
       avatar: '🌙',
       avatarImage: null,
       theme: 'acrylic',
@@ -364,10 +364,10 @@
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
           .then((reg) => {
-            console.log('Alcove Service Worker registered with scope:', reg.scope);
+            console.log('Rukn Service Worker registered with scope:', reg.scope);
           })
           .catch((err) => {
-            console.warn('Alcove Service Worker registration failed:', err);
+            console.warn('Rukn Service Worker registration failed:', err);
           });
       });
     }
@@ -527,7 +527,7 @@
 
   async function loadSettings() {
     const profile = await window.DiaryDB.getSetting('profile', {
-      name: 'Alcove Resident',
+      name: 'Rukn Resident',
       avatar: '🌙',
       avatarImage: null,
       theme: 'cyberneon',
@@ -770,7 +770,7 @@
     renderAvatarElement(dom.inlineComposerAvatar, state.profile.avatarImage, state.profile.avatar, state.profile.name);
     renderAvatarElement(dom.settingsAvatarPreview, state.profile.avatarImage, state.profile.avatar, state.profile.name);
 
-    if (dom.inlineComposerName) dom.inlineComposerName.textContent = state.profile.name || 'Alcove Resident';
+    if (dom.inlineComposerName) dom.inlineComposerName.textContent = state.profile.name || 'Rukn Resident';
 
     if (dom.removeProfilePicBtn) {
       dom.removeProfilePicBtn.classList.toggle('hidden', !state.profile.avatarImage);
@@ -781,7 +781,7 @@
 
     if (dom.clientIdInput) dom.clientIdInput.value = state.googleClientId || '';
     if (dom.geminiKeyInput) dom.geminiKeyInput.value = state.geminiApiKey || '';
-    if (dom.displayNameInput) dom.displayNameInput.value = state.profile.name || 'Alcove Resident';
+    if (dom.displayNameInput) dom.displayNameInput.value = state.profile.name || 'Rukn Resident';
     if (dom.avatarSelect) dom.avatarSelect.value = state.profile.avatar || '🌙';
     const originEl = document.getElementById('originDisplay');
     if (originEl) originEl.textContent = window.location.origin;
@@ -1889,10 +1889,10 @@
     for (const uc of userComments) {
       commentsHtml += `
         <div class="friend-comment-bubble flex items-start gap-2">
-          ${getAvatarHtml(uc.authorAvatarImage, uc.authorAvatar || '🌙', uc.authorName || 'Alcove Resident', 'w-6 h-6', 'text-xs')}
+          ${getAvatarHtml(uc.authorAvatarImage, uc.authorAvatar || '🌙', uc.authorName || 'Rukn Resident', 'w-6 h-6', 'text-xs')}
           <div class="flex-1 min-w-0">
             <div class="flex items-center justify-between">
-              <span class="font-semibold text-stone-200 text-xs">${escapeHtml(uc.authorName || 'Alcove Resident')}</span>
+              <span class="font-semibold text-stone-200 text-xs">${escapeHtml(uc.authorName || 'Rukn Resident')}</span>
               <span class="text-[10px] text-stone-500">${formatRelativeTime(uc.timestamp)}</span>
             </div>
             <div class="text-xs text-stone-300 mt-0.5 leading-relaxed">${escapeHtml(uc.content)}</div>
@@ -1915,12 +1915,12 @@
       ${!isLast ? '<div class="thread-line"></div>' : ''}
 
       <div class="flex items-start gap-3 relative z-10">
-        ${getAvatarHtml(post.authorAvatarImage || state.profile.avatarImage, post.authorAvatar || state.profile.avatar || '🌙', post.authorName || state.profile.name || 'Alcove Resident', 'w-10 h-10', 'text-lg')}
+        ${getAvatarHtml(post.authorAvatarImage || state.profile.avatarImage, post.authorAvatar || state.profile.avatar || '🌙', post.authorName || state.profile.name || 'Rukn Resident', 'w-10 h-10', 'text-lg')}
 
         <div class="flex-1 min-w-0">
           <div class="flex items-center justify-between">
             <div class="flex items-center flex-wrap">
-              <span class="font-semibold text-stone-100 text-sm">${escapeHtml(state.profile.name || 'Alcove Resident')}</span>
+              <span class="font-semibold text-stone-100 text-sm">${escapeHtml(state.profile.name || 'Rukn Resident')}</span>
               <span class="text-xs text-stone-500 ml-2 font-normal" title="${dateFormatted} at ${timeFormatted}">${relativeTime}</span>
               ${editedTag}
               ${moodBadge}
@@ -2137,7 +2137,7 @@
 
       const userComment = {
         id: 'comm_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
-        authorName: state.profile.name || 'Alcove Resident',
+        authorName: state.profile.name || 'Rukn Resident',
         authorAvatarImage: state.profile.avatarImage || null,
         authorAvatar: state.profile.avatar || '🌙',
         content: text,
@@ -2459,7 +2459,7 @@
         media: mediaList,
         authorAvatarImage: state.profile.avatarImage || null,
         authorAvatar: state.profile.avatar || '🌙',
-        authorName: state.profile.name || 'Alcove Resident'
+        authorName: state.profile.name || 'Rukn Resident'
       };
 
       await window.DiaryDB.savePost(newPost);
@@ -2635,7 +2635,7 @@
         media: mediaList,
         authorAvatarImage: state.profile.avatarImage || null,
         authorAvatar: state.profile.avatar || '🌙',
-        authorName: state.profile.name || 'Alcove Resident'
+        authorName: state.profile.name || 'Rukn Resident'
       };
 
       await window.DiaryDB.savePost(newPost);
@@ -2892,7 +2892,7 @@
   async function saveSettings() {
     const clientId = dom.clientIdInput.value.trim();
     const geminiKey = dom.geminiKeyInput.value.trim();
-    const name = dom.displayNameInput.value.trim() || 'Alcove Resident';
+    const name = dom.displayNameInput.value.trim() || 'Rukn Resident';
     const avatar = dom.avatarSelect.value || '🌙';
 
     state.googleClientId = clientId;
@@ -2941,7 +2941,7 @@
     await window.DiaryDB.saveSetting('google_profile', profile);
 
     let profileUpdated = false;
-    if (profile.name && (!state.profile.name || state.profile.name === 'Alcove Resident')) {
+    if (profile.name && (!state.profile.name || state.profile.name === 'Alcove Resident' || state.profile.name === 'Rukn Resident')) {
       state.profile.name = profile.name;
       profileUpdated = true;
     }

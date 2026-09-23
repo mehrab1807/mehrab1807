@@ -1,4 +1,4 @@
-# Alcove: Private Journal, Tasks, Notes and Companion
+# Rukn: Private Journal, Tasks, Notes and Companion
 
 A zero-installation, portable personal journal application built with a transparent frosted glass aesthetic, featuring an integrated task reminder manager, scratchpad notes, global full-text search across posts and files, and an empathetic, thoughtful personal companion named Sage.
 
@@ -35,7 +35,7 @@ Google Drive synchronisation uses the official Google Identity Services library 
 3. Open **APIs & Services** > **Enabled APIs & Services**, click **Enable APIs and Services**, search for **Google Drive API**, and enable it.
 4. Open **APIs & Services** > **OAuth consent screen**:
    - Choose **External** user type and click **Create**.
-   - Enter an application name, such as *Alcove*, and a support email.
+   - Enter an application name, such as *Rukn*, and a support email.
    - On the **Test users** screen, add your personal Google email address.
 5. Open **APIs & Services** > **Credentials**:
    - Click **Create Credentials** > **OAuth client ID**.
@@ -43,7 +43,7 @@ Google Drive synchronisation uses the official Google Identity Services library 
    - Under **Authorised JavaScript origins**, click **Add URI** and enter `http://localhost:8000` (and `https://mehrab1807.github.io`).
    - Click **Create**.
 6. Copy the generated **Client ID**.
-7. In Alcove, click **Sign in with Google** or the **Settings** gear icon in the top right, enter your Client ID once, and sign in.
+7. In Rukn, click **Sign in with Google** or the **Settings** gear icon in the top right, enter your Client ID once, and sign in.
 
 ### 2. Gemini API Key for Sage Companion
 The Sage mindful companion connects directly from the browser to Google's `gemini-2.5-flash` model.
@@ -51,7 +51,7 @@ The Sage mindful companion connects directly from the browser to Google's `gemin
 1. Visit Google AI Studio at `https://aistudio.google.com/app/apikey`.
 2. Sign in with your Google account and click **Create API Key**.
 3. Select your Google Cloud project and generate the key.
-4. In Alcove, open the **Settings** modal, paste the key into the **Gemini API Key** field, and click **Save Settings**.
+4. In Rukn, open the **Settings** modal, paste the key into the **Gemini API Key** field, and click **Save Settings**.
 
 ---
 
@@ -59,7 +59,7 @@ The Sage mindful companion connects directly from the browser to Google's `gemin
 
 All data backed up to Google Drive is stored in an isolated root folder within your personal Drive:
 
-- `/Alcove_Data/` (with automatic backward compatibility for existing `/PersonalDiaryApp_Data/` folders)
+- `/Rukn_Data/` (with automatic backward compatibility for existing `/Alcove_Data/` and `/PersonalDiaryApp_Data/` folders)
   - `manifest.json`: User profile settings and post date index.
   - `/posts/`: Yearly collections of entries, such as `posts_2026.json`.
   - `tasks.json`: Task checklist with due dates and completion states.

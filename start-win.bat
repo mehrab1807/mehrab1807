@@ -1,9 +1,9 @@
 @echo off
-title Alcove Server
+title Rukn Server
 cd /d "%~dp0"
 
 echo ========================================================
-echo   Alcove - Private Journal
+echo   Rukn - Private Journal
 echo ========================================================
 echo.
 echo Serving directory: %~dp0
