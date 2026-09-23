@@ -4,7 +4,7 @@
  * and seamless background synchronization.
  */
 
-const CACHE_NAME = 'rukn-pwa-v1';
+const CACHE_NAME = 'rukn-pwa-v2';
 
 const PRECACHE_ASSETS = [
   './',
@@ -15,6 +15,7 @@ const PRECACHE_ASSETS = [
   './driveSync.js',
   './chat.js',
   './player.js',
+  './recorder.js',
   './manifest.json',
   './icons/icon.svg',
   './icons/icon-192.png',

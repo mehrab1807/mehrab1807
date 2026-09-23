@@ -87,7 +87,7 @@
     isAudio(mediaItem) {
       const mime = (mediaItem.mimeType || '').toLowerCase();
       const name = (mediaItem.name || mediaItem.url || '').toLowerCase();
-      return mime.startsWith('audio/') || /\.(mp3|m4a|wav|ogg|aac|flac)$/i.test(name);
+      return mime.startsWith('audio/') || /\.(mp3|m4a|wav|ogg|aac|flac|weba)$/i.test(name);
     },
 
     isVideo(mediaItem) {

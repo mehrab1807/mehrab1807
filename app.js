@@ -216,6 +216,8 @@
       inlineComposerVideos: document.getElementById('inlineComposerVideos'),
       inlineAddPhotosBtn: document.getElementById('inlineAddPhotosBtn'),
       inlineAddVideosBtn: document.getElementById('inlineAddVideosBtn'),
+      inlineRecordAudioBtn: document.getElementById('inlineRecordAudioBtn'),
+      inlineRecordVideoBtn: document.getElementById('inlineRecordVideoBtn'),
       inlineComposerMood: document.getElementById('inlineComposerMood'),
       inlineFilePreview: document.getElementById('inlineFilePreview'),
       inlineLocationBar: document.getElementById('inlineLocationBar'),
@@ -288,9 +290,38 @@
       composerVideos: document.getElementById('composerVideos'),
       modalAddPhotosBtn: document.getElementById('modalAddPhotosBtn'),
       modalAddVideosBtn: document.getElementById('modalAddVideosBtn'),
+      modalRecordAudioBtn: document.getElementById('modalRecordAudioBtn'),
+      modalRecordVideoBtn: document.getElementById('modalRecordVideoBtn'),
       composerExternalUrl: document.getElementById('composerExternalUrl'),
       composerFilePreview: document.getElementById('composerFilePreview'),
       submitPostBtn: document.getElementById('submitPostBtn'),
+
+      // Memoir Recording Studio Modal
+      mediaRecorderModal: document.getElementById('mediaRecorderModal'),
+      closeRecorderModalBtn: document.getElementById('closeRecorderModalBtn'),
+      recorderModeAudioBtn: document.getElementById('recorderModeAudioBtn'),
+      recorderModeVideoBtn: document.getElementById('recorderModeVideoBtn'),
+      recorderErrorBanner: document.getElementById('recorderErrorBanner'),
+      recorderErrorTitle: document.getElementById('recorderErrorTitle'),
+      recorderErrorMessage: document.getElementById('recorderErrorMessage'),
+      recorderVideoArea: document.getElementById('recorderVideoArea'),
+      recorderLiveVideo: document.getElementById('recorderLiveVideo'),
+      recorderReviewVideo: document.getElementById('recorderReviewVideo'),
+      recorderVideoStatusBadge: document.getElementById('recorderVideoStatusBadge'),
+      recorderVideoTimer: document.getElementById('recorderVideoTimer'),
+      recorderFlipCameraBtn: document.getElementById('recorderFlipCameraBtn'),
+      recorderAudioArea: document.getElementById('recorderAudioArea'),
+      audioVisualizerOrb: document.getElementById('audioVisualizerOrb'),
+      soundwaveContainer: document.getElementById('soundwaveContainer'),
+      recorderAudioTimer: document.getElementById('recorderAudioTimer'),
+      recorderAudioStatusLabel: document.getElementById('recorderAudioStatusLabel'),
+      recorderAudioReviewWrap: document.getElementById('recorderAudioReviewWrap'),
+      recorderReviewAudio: document.getElementById('recorderReviewAudio'),
+      recorderRetakeBtn: document.getElementById('recorderRetakeBtn'),
+      recorderStartBtn: document.getElementById('recorderStartBtn'),
+      recorderPauseBtn: document.getElementById('recorderPauseBtn'),
+      recorderStopBtn: document.getElementById('recorderStopBtn'),
+      recorderAttachBtn: document.getElementById('recorderAttachBtn'),
 
       // Chat Drawer
       chatDrawer: document.getElementById('chatDrawer'),
@@ -2313,6 +2344,259 @@
     updateLightboxUI();
   }
 
+  // ==========================================
+  // MEMOIR RECORDING STUDIO CONTROLLER
+  // ==========================================
+  let recorderTarget = 'inline'; // 'inline' or 'modal'
+  let recorderActiveMode = 'audio'; // 'audio' or 'video'
+  let currentRecordingResult = null; // { blob, file, url, mimeType, duration, mode }
+
+  function openRecorderModal(mode = 'audio', target = 'inline') {
+    recorderTarget = target;
+    recorderActiveMode = mode;
+    currentRecordingResult = null;
+
+    if (!window.RecorderService || !window.RecorderService.isSupported()) {
+      showRecorderError('Recording Not Supported', 'Your browser does not support in-browser media recording. Please use modern Chrome, Edge, Safari, or Firefox.');
+      dom.mediaRecorderModal?.classList.remove('hidden');
+      return;
+    }
+
+    dom.recorderErrorBanner?.classList.add('hidden');
+    dom.mediaRecorderModal?.classList.remove('hidden');
+
+    setRecorderStudioMode(mode);
+  }
+
+  function closeRecorderModal() {
+    if (window.RecorderService) {
+      window.RecorderService.discard();
+    }
+    dom.mediaRecorderModal?.classList.add('hidden');
+    currentRecordingResult = null;
+    resetRecorderUI();
+  }
+
+  function showRecorderError(title, message) {
+    if (dom.recorderErrorBanner) {
+      if (dom.recorderErrorTitle) dom.recorderErrorTitle.textContent = title;
+      if (dom.recorderErrorMessage) dom.recorderErrorMessage.textContent = message;
+      dom.recorderErrorBanner.classList.remove('hidden');
+    }
+  }
+
+  function setRecorderStudioMode(mode) {
+    recorderActiveMode = mode;
+    if (window.RecorderService) {
+      window.RecorderService.discard();
+    }
+    currentRecordingResult = null;
+    resetRecorderUI();
+
+    if (mode === 'video') {
+      dom.recorderModeVideoBtn?.classList.add('bg-rose-500/20', 'text-rose-300', 'font-semibold');
+      dom.recorderModeAudioBtn?.classList.remove('bg-sky-500/20', 'text-sky-300', 'font-semibold');
+      dom.recorderVideoArea?.classList.remove('hidden');
+      dom.recorderAudioArea?.classList.add('hidden');
+
+      // Start camera preview
+      window.RecorderService.startCameraPreview(dom.recorderLiveVideo).then(res => {
+        if (!res.success) {
+          showRecorderError('Camera Access Denied', 'Please grant camera and microphone permissions to record video memoirs.');
+        }
+      });
+    } else {
+      dom.recorderModeAudioBtn?.classList.add('bg-sky-500/20', 'text-sky-300', 'font-semibold');
+      dom.recorderModeVideoBtn?.classList.remove('bg-rose-500/20', 'text-rose-300', 'font-semibold');
+      dom.recorderAudioArea?.classList.remove('hidden');
+      dom.recorderVideoArea?.classList.add('hidden');
+    }
+
+    if (typeof lucide !== 'undefined' && lucide.createIcons) {
+      lucide.createIcons();
+    }
+  }
+
+  function resetRecorderUI() {
+    dom.recorderStartBtn?.classList.remove('hidden');
+    dom.recorderPauseBtn?.classList.add('hidden');
+    dom.recorderStopBtn?.classList.add('hidden');
+    dom.recorderRetakeBtn?.classList.add('hidden');
+    dom.recorderAttachBtn?.classList.add('hidden');
+
+    if (dom.recorderPauseBtn) {
+      dom.recorderPauseBtn.innerHTML = '<i data-lucide="pause" class="w-4 h-4"></i>';
+      dom.recorderPauseBtn.title = 'Pause';
+    }
+
+    if (dom.recorderAudioTimer) dom.recorderAudioTimer.textContent = '00:00';
+    if (dom.recorderVideoTimer) dom.recorderVideoTimer.textContent = '00:00';
+    if (dom.recorderVideoStatusBadge) dom.recorderVideoStatusBadge.classList.add('hidden');
+    if (dom.recorderAudioStatusLabel) {
+      dom.recorderAudioStatusLabel.textContent = recorderActiveMode === 'video' ? 'Ready to record video memoir' : 'Ready to record voice memo';
+    }
+
+    dom.recorderLiveVideo?.classList.remove('hidden');
+    dom.recorderReviewVideo?.classList.add('hidden');
+    if (dom.recorderReviewVideo) {
+      dom.recorderReviewVideo.pause();
+      dom.recorderReviewVideo.src = '';
+    }
+
+    dom.recorderAudioReviewWrap?.classList.add('hidden');
+    if (dom.recorderReviewAudio) {
+      dom.recorderReviewAudio.pause();
+      dom.recorderReviewAudio.src = '';
+    }
+
+    const bars = dom.soundwaveContainer?.querySelectorAll('.soundwave-bar') || [];
+    bars.forEach(b => {
+      b.classList.remove('animating');
+      b.style.height = '6px';
+    });
+  }
+
+  async function handleStartRecording() {
+    if (!window.RecorderService) return;
+    dom.recorderErrorBanner?.classList.add('hidden');
+
+    const bars = dom.soundwaveContainer?.querySelectorAll('.soundwave-bar') || [];
+
+    const res = await window.RecorderService.startRecording(recorderActiveMode, {
+      videoElement: recorderActiveMode === 'video' ? dom.recorderLiveVideo : null,
+      onTick: (seconds, formatted) => {
+        if (dom.recorderAudioTimer) dom.recorderAudioTimer.textContent = formatted;
+        if (dom.recorderVideoTimer) dom.recorderVideoTimer.textContent = formatted;
+      },
+      onAudioLevel: (level) => {
+        if (bars.length) {
+          bars.forEach((bar, idx) => {
+            const factor = Math.sin((idx + 1) * 0.8) * 0.5 + 0.5;
+            const h = Math.max(6, Math.min(32, Math.round(level * factor * 0.3) + 6));
+            bar.style.height = `${h}px`;
+          });
+        }
+      }
+    });
+
+    if (!res.success) {
+      showRecorderError('Recording Failed to Start', 'Please verify your camera and microphone permissions in browser settings.');
+      return;
+    }
+
+    dom.recorderStartBtn?.classList.add('hidden');
+    dom.recorderPauseBtn?.classList.remove('hidden');
+    dom.recorderStopBtn?.classList.remove('hidden');
+    dom.recorderRetakeBtn?.classList.add('hidden');
+    dom.recorderAttachBtn?.classList.add('hidden');
+
+    if (recorderActiveMode === 'video') {
+      dom.recorderVideoStatusBadge?.classList.remove('hidden');
+      dom.recorderVideoStatusBadge?.classList.add('flex');
+    } else {
+      if (dom.recorderAudioStatusLabel) dom.recorderAudioStatusLabel.textContent = 'Recording in progress...';
+      bars.forEach(b => b.classList.add('animating'));
+    }
+
+    if (typeof lucide !== 'undefined' && lucide.createIcons) {
+      lucide.createIcons();
+    }
+  }
+
+  function handlePauseResumeRecording() {
+    if (!window.RecorderService) return;
+    if (window.RecorderService.status === 'recording') {
+      window.RecorderService.pauseRecording();
+      if (dom.recorderPauseBtn) {
+        dom.recorderPauseBtn.innerHTML = '<i data-lucide="play" class="w-4 h-4"></i>';
+        dom.recorderPauseBtn.title = 'Resume';
+      }
+      if (dom.recorderAudioStatusLabel) dom.recorderAudioStatusLabel.textContent = 'Recording paused';
+    } else if (window.RecorderService.status === 'paused') {
+      window.RecorderService.resumeRecording();
+      if (dom.recorderPauseBtn) {
+        dom.recorderPauseBtn.innerHTML = '<i data-lucide="pause" class="w-4 h-4"></i>';
+        dom.recorderPauseBtn.title = 'Pause';
+      }
+      if (dom.recorderAudioStatusLabel) dom.recorderAudioStatusLabel.textContent = 'Recording in progress...';
+    }
+    if (typeof lucide !== 'undefined' && lucide.createIcons) {
+      lucide.createIcons();
+    }
+  }
+
+  async function handleStopRecording() {
+    if (!window.RecorderService) return;
+
+    const result = await window.RecorderService.stopRecording();
+    if (!result) return;
+    currentRecordingResult = result;
+
+    dom.recorderStartBtn?.classList.add('hidden');
+    dom.recorderPauseBtn?.classList.add('hidden');
+    dom.recorderStopBtn?.classList.add('hidden');
+    dom.recorderRetakeBtn?.classList.remove('hidden');
+    dom.recorderAttachBtn?.classList.remove('hidden');
+
+    const bars = dom.soundwaveContainer?.querySelectorAll('.soundwave-bar') || [];
+    bars.forEach(b => {
+      b.classList.remove('animating');
+      b.style.height = '6px';
+    });
+
+    if (result.mode === 'video') {
+      dom.recorderVideoStatusBadge?.classList.add('hidden');
+      dom.recorderLiveVideo?.classList.add('hidden');
+      if (dom.recorderReviewVideo) {
+        dom.recorderReviewVideo.src = result.url;
+        dom.recorderReviewVideo.classList.remove('hidden');
+        dom.recorderReviewVideo.play().catch(() => {});
+      }
+    } else {
+      if (dom.recorderAudioStatusLabel) dom.recorderAudioStatusLabel.textContent = `Recording complete (${result.durationFormatted})`;
+      if (dom.recorderReviewAudio) {
+        dom.recorderReviewAudio.src = result.url;
+        dom.recorderAudioReviewWrap?.classList.remove('hidden');
+      }
+    }
+
+    if (typeof lucide !== 'undefined' && lucide.createIcons) {
+      lucide.createIcons();
+    }
+  }
+
+  function handleRetakeRecording() {
+    if (window.RecorderService) {
+      window.RecorderService.discard();
+    }
+    currentRecordingResult = null;
+    resetRecorderUI();
+
+    if (recorderActiveMode === 'video') {
+      window.RecorderService.startCameraPreview(dom.recorderLiveVideo);
+    }
+
+    if (typeof lucide !== 'undefined' && lucide.createIcons) {
+      lucide.createIcons();
+    }
+  }
+
+  function handleAttachRecording() {
+    if (!currentRecordingResult || !currentRecordingResult.file) return;
+
+    const file = currentRecordingResult.file;
+
+    if (recorderTarget === 'inline') {
+      state.selectedInlineFiles.push(file);
+      renderInlineFilePreviews();
+    } else {
+      state.selectedComposerFiles.push(file);
+      renderComposerFilePreviews();
+    }
+
+    closeRecorderModal();
+  }
+
   // INLINE COMPOSER (Threads Style)
   function handleInlineFilesSelected(e) {
     const files = Array.from(e.target.files);
@@ -2351,8 +2635,18 @@
     } else if (isVideo) {
       card.className += ' flex flex-col items-center justify-center p-1.5 text-center';
       card.innerHTML = `
-        <div class="w-7 h-7 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center mb-1">
+        <div class="w-7 h-7 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center mb-1">
           <i data-lucide="video" class="w-3.5 h-3.5"></i>
+        </div>
+        <span class="text-[9px] text-stone-200 truncate max-w-full font-medium pointer-events-none">${escapeHtml(file.name)}</span>
+        <span class="text-[8px] text-stone-400 pointer-events-none">${formatFileSize(file.size)}</span>
+      `;
+      card.appendChild(removeBtn);
+    } else if (isAudio) {
+      card.className += ' flex flex-col items-center justify-center p-1.5 text-center';
+      card.innerHTML = `
+        <div class="w-7 h-7 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center mb-1">
+          <i data-lucide="mic" class="w-3.5 h-3.5"></i>
         </div>
         <span class="text-[9px] text-stone-200 truncate max-w-full font-medium pointer-events-none">${escapeHtml(file.name)}</span>
         <span class="text-[8px] text-stone-400 pointer-events-none">${formatFileSize(file.size)}</span>
@@ -2362,7 +2656,7 @@
       card.className += ' flex flex-col items-center justify-center p-1.5 text-center';
       card.innerHTML = `
         <div class="w-7 h-7 rounded-full bg-stone-700 text-stone-300 flex items-center justify-center mb-1">
-          <i data-lucide="${isAudio ? 'volume-2' : 'file'}" class="w-3.5 h-3.5"></i>
+          <i data-lucide="file" class="w-3.5 h-3.5"></i>
         </div>
         <span class="text-[9px] text-stone-200 truncate max-w-full font-medium pointer-events-none">${escapeHtml(file.name)}</span>
         <span class="text-[8px] text-stone-400 pointer-events-none">${formatFileSize(file.size)}</span>
@@ -2380,11 +2674,13 @@
 
     const photosCount = state.selectedInlineFiles.filter(f => f.type && f.type.startsWith('image/')).length;
     const videosCount = state.selectedInlineFiles.filter(f => f.type && f.type.startsWith('video/')).length;
-    const othersCount = state.selectedInlineFiles.length - photosCount - videosCount;
+    const audioCount = state.selectedInlineFiles.filter(f => f.type && f.type.startsWith('audio/')).length;
+    const othersCount = state.selectedInlineFiles.length - photosCount - videosCount - audioCount;
 
     const parts = [];
     if (photosCount) parts.push(`${photosCount} ${photosCount === 1 ? 'picture' : 'pictures'}`);
     if (videosCount) parts.push(`${videosCount} ${videosCount === 1 ? 'video' : 'videos'}`);
+    if (audioCount) parts.push(`${audioCount} voice ${audioCount === 1 ? 'memo' : 'memos'}`);
     if (othersCount) parts.push(`${othersCount} other`);
 
     const summary = document.createElement('div');
@@ -2535,11 +2831,13 @@
 
     const photosCount = state.selectedComposerFiles.filter(f => f.type && f.type.startsWith('image/')).length;
     const videosCount = state.selectedComposerFiles.filter(f => f.type && f.type.startsWith('video/')).length;
-    const othersCount = state.selectedComposerFiles.length - photosCount - videosCount;
+    const audioCount = state.selectedComposerFiles.filter(f => f.type && f.type.startsWith('audio/')).length;
+    const othersCount = state.selectedComposerFiles.length - photosCount - videosCount - audioCount;
 
     const parts = [];
     if (photosCount) parts.push(`${photosCount} ${photosCount === 1 ? 'picture' : 'pictures'}`);
     if (videosCount) parts.push(`${videosCount} ${videosCount === 1 ? 'video' : 'videos'}`);
+    if (audioCount) parts.push(`${audioCount} voice ${audioCount === 1 ? 'memo' : 'memos'}`);
     if (othersCount) parts.push(`${othersCount} other`);
 
     const summary = document.createElement('div');
@@ -3150,6 +3448,8 @@
     dom.inlineSubmitBtn?.addEventListener('click', submitInlinePost);
     dom.inlineAddPhotosBtn?.addEventListener('click', () => dom.inlineComposerPhotos?.click());
     dom.inlineAddVideosBtn?.addEventListener('click', () => dom.inlineComposerVideos?.click());
+    dom.inlineRecordAudioBtn?.addEventListener('click', () => openRecorderModal('audio', 'inline'));
+    dom.inlineRecordVideoBtn?.addEventListener('click', () => openRecorderModal('video', 'inline'));
     dom.inlineComposerPhotos?.addEventListener('change', handleInlineFilesSelected);
     dom.inlineComposerVideos?.addEventListener('change', handleInlineFilesSelected);
     dom.inlineComposerFiles?.addEventListener('change', handleInlineFilesSelected);
@@ -3256,8 +3556,25 @@
     });
     dom.composerPhotos?.addEventListener('change', handleComposerFilesSelected);
     dom.composerVideos?.addEventListener('change', handleComposerFilesSelected);
+    dom.modalRecordAudioBtn?.addEventListener('click', () => openRecorderModal('audio', 'modal'));
+    dom.modalRecordVideoBtn?.addEventListener('click', () => openRecorderModal('video', 'modal'));
     dom.composerFiles?.addEventListener('change', handleComposerFilesSelected);
     dom.submitPostBtn?.addEventListener('click', submitAdvancedPost);
+
+    // Memoir Recording Studio Modal Handlers
+    dom.closeRecorderModalBtn?.addEventListener('click', closeRecorderModal);
+    dom.recorderModeAudioBtn?.addEventListener('click', () => setRecorderStudioMode('audio'));
+    dom.recorderModeVideoBtn?.addEventListener('click', () => setRecorderStudioMode('video'));
+    dom.recorderFlipCameraBtn?.addEventListener('click', () => {
+      if (window.RecorderService) {
+        window.RecorderService.switchCamera(dom.recorderLiveVideo);
+      }
+    });
+    dom.recorderStartBtn?.addEventListener('click', handleStartRecording);
+    dom.recorderPauseBtn?.addEventListener('click', handlePauseResumeRecording);
+    dom.recorderStopBtn?.addEventListener('click', handleStopRecording);
+    dom.recorderRetakeBtn?.addEventListener('click', handleRetakeRecording);
+    dom.recorderAttachBtn?.addEventListener('click', handleAttachRecording);
 
     // Chat Drawer
     const handleToggleChat = () => {
