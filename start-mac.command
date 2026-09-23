@@ -2,7 +2,7 @@
 cd "$(dirname "$0")"
 
 echo "========================================================"
-echo "  Alcove - Private Journal, Tasks, Notes and Counsel"
+echo "  Alcove - Private Journal"
 echo "========================================================"
 echo ""
 echo "Serving directory: $(pwd)"

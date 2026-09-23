@@ -3,7 +3,7 @@ title Alcove Server
 cd /d "%~dp0"
 
 echo ========================================================
-echo   Alcove - Private Journal, Tasks, Notes and Counsel
+echo   Alcove - Private Journal
 echo ========================================================
 echo.
 echo Serving directory: %~dp0
